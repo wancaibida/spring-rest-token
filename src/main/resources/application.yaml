@@ -1,0 +1,16 @@
+spring:
+    datasource:
+        url: ${JDBC_CONNECTION_STRING:jdbc:postgresql://localhost:5432/demo}
+        username: ${JDBC_CONNECTION_USERNAME:demo}
+        password: ${JDBC_CONNECTION_PASSWORD:demo}
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        properties:
+            hibernate:
+                format_sql: ${LOG_SQL:false}
+                show_sql: ${LOG_SQL:false}
+                hbm2ddl:
+                    auto: update
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
