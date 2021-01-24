@@ -5,8 +5,9 @@ import me.w2x.rest.entity.User
 import me.w2x.rest.repository.OtpRepository
 import me.w2x.rest.repository.UserRepository
 import me.w2x.rest.util.GenerateCodeUtil
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,9 +18,11 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class UserService(
     val userRepository: UserRepository,
-    val otpRepository: OtpRepository,
-    val passwordEncoder: BCryptPasswordEncoder
+    val otpRepository: OtpRepository
 ) {
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
 
     fun addUser(user: User) {
         user.password = (passwordEncoder.encode(user.password))
@@ -50,6 +53,8 @@ class UserService(
         otp.code = GenerateCodeUtil.generateCode()
 
         otpRepository.save(otp)
+
+        println("User ${user.username} code is ${otp.code}")
     }
 
     fun check(otpToValidate: Otp): Boolean {
