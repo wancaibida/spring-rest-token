@@ -21,24 +21,20 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     lateinit var initialAuthenticationFilter: InitialAuthenticationFilter
 
     @Autowired
-    lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
-
-    @Autowired
-    lateinit var otpAuthenticationProvider: OtpAuthenticationProvider
+    lateinit var xAuthenticationFilter: XAuthenticationFilter
 
     @Autowired
     lateinit var usernamePasswordAuthenticationProvider: UsernamePasswordAuthenticationProvider
 
     override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.authenticationProvider(otpAuthenticationProvider)
-            .authenticationProvider(usernamePasswordAuthenticationProvider)
+        auth.authenticationProvider(usernamePasswordAuthenticationProvider)
     }
 
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
 
         http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter::class.java)
-            .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter::class.java)
+            .addFilterAfter(xAuthenticationFilter, BasicAuthenticationFilter::class.java)
 
         http.authorizeRequests().anyRequest().authenticated()
     }

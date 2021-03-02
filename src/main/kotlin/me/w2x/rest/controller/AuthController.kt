@@ -1,9 +1,7 @@
 package me.w2x.rest.controller
 
-import me.w2x.rest.entity.Otp
 import me.w2x.rest.entity.User
 import me.w2x.rest.service.UserService
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
@@ -32,12 +30,4 @@ class AuthController(
         return ResponseEntity.ok().build()
     }
 
-    @PostMapping("opt/check")
-    fun otpCheck(@RequestBody otp: Otp): ResponseEntity<Any?> {
-        return if (userService.check(otp)) {
-            ResponseEntity.ok().build()
-        } else {
-            ResponseEntity(HttpStatus.FORBIDDEN)
-        }
-    }
 }

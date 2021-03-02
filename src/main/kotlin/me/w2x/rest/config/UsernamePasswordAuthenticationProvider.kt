@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
 
 /**
@@ -28,7 +29,11 @@ class UsernamePasswordAuthenticationProvider : AuthenticationProvider {
 
         userService.auth(user)
 
-        return UsernamePasswordAuthenticationToken(username, password)
+        return UsernamePasswordAuthenticationToken(
+            username,
+            password,
+            listOf(SimpleGrantedAuthority("ROLE_USER"))
+        )
     }
 
     override fun supports(authentication: Class<*>): Boolean {

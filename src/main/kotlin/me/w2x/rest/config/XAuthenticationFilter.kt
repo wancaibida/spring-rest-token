@@ -1,13 +1,13 @@
 package me.w2x.rest.config
 
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Value
+import me.w2x.rest.service.SessionService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import java.nio.charset.StandardCharsets
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -16,28 +16,25 @@ import javax.servlet.http.HttpServletResponse
  * Created by Charles Chen on 1/24/21.
  */
 @Component
-class JwtAuthenticationFilter : OncePerRequestFilter() {
+class XAuthenticationFilter : OncePerRequestFilter() {
 
-    @Value("\${jwt.signing.key}")
-    lateinit var signingKey: String
+    @Autowired
+    lateinit var sessionService: SessionService
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val jwt = request.getHeader("Authorization")
-        val key = Keys.hmacShaKeyFor(signingKey.toByteArray(StandardCharsets.UTF_8))
-        val claims = Jwts.parserBuilder().setSigningKey(key).build()
-            .parseClaimsJws(jwt)
-            .body
-        val username = claims.get("username").toString()
-        val authority = SimpleGrantedAuthority("username")
+        val sessionId = request.getHeader("X-Auth-Token")
+            ?: throw AccessDeniedException("Token can't be null")
 
+        val session = sessionService.getSession(sessionId)
+            ?: throw BadCredentialsException("Bad credentials.")
         val auth = UsernamePasswordAuthentication(
-            username,
+            session.user?.username,
             null,
-            listOf(authority)
+            listOf(SimpleGrantedAuthority("ROLE_USER"))
         )
 
         SecurityContextHolder.getContext().authentication = auth
