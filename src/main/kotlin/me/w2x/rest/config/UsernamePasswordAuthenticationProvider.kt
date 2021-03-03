@@ -1,6 +1,5 @@
 package me.w2x.rest.config
 
-import me.w2x.rest.entity.User
 import me.w2x.rest.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationProvider
@@ -21,18 +20,13 @@ class UsernamePasswordAuthenticationProvider : AuthenticationProvider {
     override fun authenticate(authentication: Authentication): Authentication {
         val username = authentication.name
         val password = authentication.credentials.toString()
-
-        val user = User().apply {
-            this.username = username
-            this.password = password
-        }
-
-        userService.auth(user)
+        val u = userService.auth(username, password)
+        val authorities = u.roles.map { SimpleGrantedAuthority(it.authority) }
 
         return UsernamePasswordAuthenticationToken(
             username,
             password,
-            listOf(SimpleGrantedAuthority("ROLE_USER"))
+            authorities
         )
     }
 

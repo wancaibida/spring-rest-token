@@ -1,6 +1,7 @@
 package me.w2x.rest.config
 
 import me.w2x.rest.service.SessionService
+import me.w2x.rest.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.BadCredentialsException
@@ -21,6 +22,9 @@ class XAuthenticationFilter : OncePerRequestFilter() {
     @Autowired
     lateinit var sessionService: SessionService
 
+    @Autowired
+    lateinit var userService: UserService
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -31,10 +35,14 @@ class XAuthenticationFilter : OncePerRequestFilter() {
 
         val session = sessionService.getSession(sessionId)
             ?: throw BadCredentialsException("Bad credentials.")
+        val username =
+            session.user?.username ?: throw BadCredentialsException("Username can't be null")
+        val user = userService.getUser(username) ?: throw BadCredentialsException("User not found")
+        val authorities = user.roles.map { SimpleGrantedAuthority(it.authority) }
         val auth = UsernamePasswordAuthentication(
-            session.user?.username,
+            username,
             null,
-            listOf(SimpleGrantedAuthority("ROLE_USER"))
+            authorities
         )
 
         SecurityContextHolder.getContext().authentication = auth
