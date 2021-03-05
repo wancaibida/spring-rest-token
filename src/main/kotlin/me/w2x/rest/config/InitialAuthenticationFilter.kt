@@ -1,6 +1,7 @@
 package me.w2x.rest.config
 
 import me.w2x.rest.service.SessionService
+import me.w2x.rest.util.JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
@@ -27,15 +28,18 @@ class InitialAuthenticationFilter : OncePerRequestFilter() {
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val username = request.getHeader("username")
-        val password = request.getHeader("password")
+        val username = request.getParameter("username")
+        val password = request.getParameter("password")
+
         val result: Authentication =
             manager.authenticate(UsernamePasswordAuthentication(username, password))
 
         if (result.isAuthenticated) {
             val session = sessionService.createSession(username)
+            val body = mapOf("token" to session.id)
 
-            response.setHeader("X-Auth-Token", session.id)
+            response.contentType = "application/json"
+            response.outputStream.write(JSON.toJson(body).encodeToByteArray())
         }
     }
 
