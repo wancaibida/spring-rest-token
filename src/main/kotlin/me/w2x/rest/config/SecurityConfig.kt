@@ -7,9 +7,10 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import org.springframework.security.web.access.ExceptionTranslationFilter
 
 /**
  * Created by Charles Chen on 1/24/21.
@@ -32,9 +33,11 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-        http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter::class.java)
-            .addFilterAfter(xAuthenticationFilter, BasicAuthenticationFilter::class.java)
+
+        http.addFilterAfter(xAuthenticationFilter, ExceptionTranslationFilter::class.java)
+            .addFilterAfter(initialAuthenticationFilter, ExceptionTranslationFilter::class.java)
 
         http.authorizeRequests().anyRequest().authenticated()
     }

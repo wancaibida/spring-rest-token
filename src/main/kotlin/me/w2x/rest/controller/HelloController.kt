@@ -14,4 +14,7 @@ class HelloController {
     fun hello(): ResponseEntity<Any?> {
         return ResponseEntity.ok("hello!")
     }
+
+    @GetMapping("")
+    fun public(): ResponseEntity<String> = ResponseEntity.ok("ok")
 }

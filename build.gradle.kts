@@ -25,12 +25,16 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
-    // Uncomment the next line if you want to use RSASSA-PSS (PS256, PS384, PS512) algorithms:
-    //'org.bouncycastle:bcprov-jdk15on:1.60',
-    implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
-
+    val sl4jVersion = "1.7.25"
+    val logbackVersion = "1.2.3"
+    //logback
+    implementation("ch.qos.logback:logback-core:$logbackVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("ch.qos.logback:logback-access:$logbackVersion")
+    implementation("org.slf4j:slf4j-api:$sl4jVersion")
+    implementation("org.slf4j:jcl-over-slf4j:$sl4jVersion")
+    implementation("org.slf4j:log4j-over-slf4j:$sl4jVersion")
+    implementation("org.codehaus.janino:janino:3.0.6")
 
     runtimeOnly("org.postgresql:postgresql")
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
