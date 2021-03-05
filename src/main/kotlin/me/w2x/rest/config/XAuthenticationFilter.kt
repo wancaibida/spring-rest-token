@@ -4,6 +4,7 @@ import me.w2x.rest.service.SessionService
 import me.w2x.rest.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -31,7 +32,15 @@ class XAuthenticationFilter : OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         val sessionId = request.getHeader("X-Auth-Token")
-            ?: throw AccessDeniedException("Token can't be null")
+
+        if (sessionId == null && isAnonymous()) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
+        if (sessionId == null) {
+            throw AccessDeniedException("Token can't be null")
+        }
 
         val session = sessionService.getSession(sessionId)
             ?: throw BadCredentialsException("Bad credentials.")
@@ -52,5 +61,9 @@ class XAuthenticationFilter : OncePerRequestFilter() {
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         return request.servletPath == "/login"
+    }
+
+    private fun isAnonymous(): Boolean {
+        return SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken
     }
 }
