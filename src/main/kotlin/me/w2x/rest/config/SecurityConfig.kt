@@ -51,7 +51,8 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 
         http.requestMatchers().anyRequest()
             .and().authorizeRequests()
-            .antMatchers("/").anonymous()
+            .antMatchers("/").permitAll()
+            .antMatchers("/hello").permitAll()
             .anyRequest().authenticated()
     }
 

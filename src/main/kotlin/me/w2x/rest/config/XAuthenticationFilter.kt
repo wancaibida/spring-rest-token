@@ -32,16 +32,7 @@ class XAuthenticationFilter : OncePerRequestFilter() {
         filterChain: FilterChain
     ) {
         val sessionId = request.getHeader("X-Auth-Token")
-
-        if (sessionId == null && isAnonymous()) {
-            filterChain.doFilter(request, response)
-            return
-        }
-
-        if (sessionId == null) {
-            throw AccessDeniedException("Token can't be null")
-        }
-
+            ?: throw AccessDeniedException("Token can't be null")
         val session = sessionService.getSession(sessionId)
             ?: throw BadCredentialsException("Bad credentials.")
         val username =
@@ -60,7 +51,17 @@ class XAuthenticationFilter : OncePerRequestFilter() {
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return request.servletPath == "/login"
+        if (request.servletPath == "/login") {
+            return true
+        }
+
+        val sessionId = request.getHeader("X-Auth-Token")
+
+        if (sessionId == null && isAnonymous()) {
+            return true
+        }
+
+        return false
     }
 
     private fun isAnonymous(): Boolean {
