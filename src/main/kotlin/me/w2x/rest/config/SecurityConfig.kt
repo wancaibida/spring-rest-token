@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AnonymousAuthenticationProvider
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -13,6 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+
 
 /**
  * Created by Charles Chen on 1/24/21.
@@ -49,11 +54,24 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         http.addFilterAfter(xAuthenticationFilter, ExceptionTranslationFilter::class.java)
             .addFilterAfter(initialAuthenticationFilter, ExceptionTranslationFilter::class.java)
 
+        http.cors(Customizer.withDefaults())
         http.requestMatchers().anyRequest()
             .and().authorizeRequests()
             .antMatchers("/").permitAll()
             .antMatchers("/hello").permitAll()
             .anyRequest().authenticated()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedMethods = listOf("*")
+        }
+
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", configuration)
+        }
     }
 
     @Bean
