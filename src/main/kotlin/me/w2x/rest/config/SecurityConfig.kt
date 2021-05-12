@@ -59,6 +59,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .and().authorizeRequests()
             .antMatchers("/").permitAll()
             .antMatchers("/hello").permitAll()
+            .antMatchers("/error").permitAll()
             .anyRequest().authenticated()
     }
 
@@ -67,6 +68,12 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         val configuration = CorsConfiguration().apply {
             allowedOrigins = listOf("*")
             allowedMethods = listOf("*")
+            allowedHeaders = listOf("*")
+            allowCredentials = true
+            allowedOrigins = listOf(
+                "http://localhost:8080",
+                "https://stackoverflow.com"
+            )
         }
 
         return UrlBasedCorsConfigurationSource().apply {
